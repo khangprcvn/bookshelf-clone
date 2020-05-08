@@ -5,4 +5,11 @@ import './styles/bootstrap'
 
 import App from 'app/App'
 
-ReactDOM.render(<App />, document.getElementById('root'))
+import { AuthProvider } from 'context/AuthContext'
+
+ReactDOM.render(
+  <AuthProvider>
+    <App />
+  </AuthProvider>,
+  document.getElementById('root')
+)

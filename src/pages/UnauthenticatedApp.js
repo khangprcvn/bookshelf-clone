@@ -9,9 +9,27 @@ import { Button, FormGroup, Input, CircleButton } from 'components/Library'
 import { Logo } from 'components/Logo'
 import { Modal, ModalDismissButton } from 'components/Modal'
 
-function LoginForm({ button }) {
+import { useAuth } from 'context/AuthContext'
+import { useAsync } from 'utils/use-async'
+
+function LoginForm({ submitButton, onSubmit }) {
+  const { run } = useAsync()
+
+  const handleSubmit = event => {
+    event.preventDefault()
+    const { username, password } = event.target.elements
+
+    run(
+      onSubmit({
+        username: username.value,
+        password: password.value
+      })
+    )
+  }
+
   return (
     <form
+      onSubmit={handleSubmit}
       css={{
         display: 'flex',
         flexDirection: 'column',
@@ -31,7 +49,15 @@ function LoginForm({ button }) {
         <label htmlFor="username">Password</label>
         <Input type="password" id="password" />
       </FormGroup>
-      <div>{React.cloneElement(button)}</div>
+      <div>
+        {React.cloneElement(
+          submitButton,
+          { type: 'submit' },
+          ...(Array.isArray(submitButton.props.children)
+            ? submitButton.props.children
+            : [submitButton.props.children])
+        )}
+      </div>
     </form>
   )
 }
@@ -48,6 +74,7 @@ const circleDismissButton = (
 )
 
 function UnauthenticatedApp() {
+  const { signup, login } = useAuth()
   return (
     <div
       css={{
@@ -75,7 +102,10 @@ function UnauthenticatedApp() {
         >
           {circleDismissButton}
           <h3 css={{ textAlign: 'center', fontSize: '2rem' }}>Login</h3>
-          <LoginForm button={<Button variant="primary">Login</Button>} />
+          <LoginForm
+            onSubmit={login}
+            submitButton={<Button variant="primary">Login</Button>}
+          />
         </Modal>
         <Modal
           aria-label="Register form"
@@ -83,7 +113,10 @@ function UnauthenticatedApp() {
         >
           {circleDismissButton}
           <h3 css={{ textAlign: 'center', fontSize: '2rem' }}>Register</h3>
-          <LoginForm button={<Button variant="secondary">Register</Button>} />
+          <LoginForm
+            onSubmit={signup}
+            submitButton={<Button variant="secondary">Register</Button>}
+          />
         </Modal>
       </div>
     </div>
